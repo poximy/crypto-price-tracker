@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import axios from "axios";
 
 import Coin from "./apiModel";
@@ -18,6 +18,15 @@ const coinData = async () => {
 };
 
 const App: FC = () => {
+  const [coins, setCoins] = useState<Coin[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const data = await coinData();
+      data !== "ERROR" ? setCoins(data) : console.log(data);
+    })();
+  }, []);
+
   return (
     <div className="App">
     </div>
