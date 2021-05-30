@@ -2,6 +2,7 @@ import { FC, useEffect, useState, ChangeEvent } from "react";
 import axios from "axios";
 
 import Coin from "./apiModel";
+import CoinData from "./Coin";
 
 import "./App.css";
 
@@ -33,7 +34,7 @@ const App: FC = () => {
   };
 
   const filteredCoins = coins.filter((coin) => {
-    coin.name.toLowerCase().includes(search.toLowerCase());
+    return coin.name.toLowerCase().includes(search.toLowerCase());
   });
 
   return (
@@ -49,6 +50,20 @@ const App: FC = () => {
           />
         </form>
       </div>
+      {filteredCoins.map((coin) => {
+        return (
+          <CoinData
+            key={coin.id}
+            image={coin.image}
+            name={coin.name}
+            symbol={coin.symbol}
+            price={coin.current_price}
+            volume={coin.total_volume}
+            change={coin.price_change_percentage_24h}
+            marketCap={coin.market_cap}
+          />
+        );
+      })}
     </div>
   );
 };
