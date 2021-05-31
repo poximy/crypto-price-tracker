@@ -1,5 +1,7 @@
 import { FC } from "react";
 
+import "./Coin.css";
+
 interface CoinStats {
   image: string;
   name: string;
