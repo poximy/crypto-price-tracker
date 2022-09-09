@@ -9,12 +9,12 @@ import (
 var fetch = NewFetch()
 var tmpl, _ = LoadTemplate()
 
-func NewRouter() *Route {
+func NewRoute() *chi.Mux {
 	r := &Route{}
 	r.Router = chi.NewRouter()
 	r.Mount()
 
-	return r
+	return r.Router
 }
 
 type Route struct {

@@ -29,7 +29,7 @@ func (s *Server) MountMiddleware() {
 }
 
 func (s *Server) MountHandlers() {
-	s.Router.Mount("/", pages.NewRouter().Router)
+	s.Router.Mount("/", pages.NewRoute())
 }
 
 func NewServer() *Server {
