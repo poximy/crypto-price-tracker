@@ -35,18 +35,21 @@ func TestIndex(t *testing.T) {
 	response := executeRequest(req, r)
 
 	headers := response.Header()
-	if val, ok := headers["Content-Type"]; ok {
-		if len(val)	!= 1 {
-			t.Errorf("Expected Content-Type Header to be of length 1. Got %d\n", len(val))
-		}
-
-		contains := []string{"text/html"}
-		equal := reflect.DeepEqual(val, contains)
-		if !equal {
-			t.Errorf("Expected %+q to be the same as %+q", val, contains)
-		}
+	contentType, ok := headers["Content-Type"]
+	if !ok {
+		t.Error("Expected Content-Type in Headers. Content-Type not found\n")
+		return
 	}
 
+	if length := len(contentType); length	!= 1 {
+		t.Errorf("Expected Content-Type Header to be of length 1. Got %d\n", length)
+	}
+
+	contains := []string{"text/html"}
+	equal := reflect.DeepEqual(contentType, contains)
+	if !equal {
+		t.Errorf("Expected %+q to be the same as %+q\n", contentType, contains)
+	}
 }
 
 func executeRequest(req *http.Request, r *chi.Mux) *httptest.ResponseRecorder {
