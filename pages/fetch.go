@@ -68,10 +68,9 @@ func parseJSON(cg *[]CoinGeko) {
 }
 
 func roundFloat(val float64, precision uint) float64 {
-    ratio := math.Pow(10, float64(precision))
-    return math.Round(val*ratio) / ratio
+	ratio := math.Pow(10, float64(precision))
+	return math.Round(val*ratio) / ratio
 }
-
 
 type CoinGeko struct {
 	ID                           string   `json:"id"`
