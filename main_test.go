@@ -21,7 +21,7 @@ func TestNewServer(t *testing.T) {
 	response = executeRequest(req, s)
 
 	if http.StatusOK != response.Code {
-		t.Errorf("Expected response code %d. Got %d\n", http.StatusNotFound, response.Code)
+		t.Errorf("Expected response code %d. Got %d\n", http.StatusOK, response.Code)
 	}
 }
 
