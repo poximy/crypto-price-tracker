@@ -18,12 +18,8 @@ func loadHTML() (string, error) {
 	return html, nil
 }
 
-// FIXME panic if err
 func LoadTemplate() (*template.Template, error) {
 	html, _ := loadHTML()
-	tmpl, err := template.New("index").Parse(html)
-	if err != nil {
-		return &template.Template{}, errors.New("unable to load page")
-	}
+	tmpl, _ := template.New("index").Parse(html)
 	return tmpl, nil
 }
