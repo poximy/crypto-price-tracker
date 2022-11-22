@@ -7,7 +7,7 @@ import (
 )
 
 var fetch = NewFetch()
-var tmpl, _ = LoadTemplate()
+var tmpl = LoadTemplate()
 
 func NewRoute() *chi.Mux {
 	r := &Route{}
