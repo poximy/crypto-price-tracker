@@ -23,7 +23,7 @@ func (f *Fetch) Refresh() bool {
 	now := time.Now()
 
 	if f.time.Before(now) {
-		f.time = time.Now().Add(10 * time.Second)
+		f.time = now.Add(10 * time.Second)
 		return true
 	}
 	return false
