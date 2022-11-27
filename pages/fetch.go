@@ -13,12 +13,14 @@ type Fetch struct {
 	time time.Time
 }
 
+// NewFetch creates a Fetch instanace with a starting time & data
 func NewFetch() Fetch {
 	next := time.Now().Add(10 * time.Second)
 	json, _ := getJSON() // FIXME handle err
 	return Fetch{data: &json, time: next}
 }
 
+// Refresh method checks if a certain amount of time has passed
 func (f *Fetch) Refresh() bool {
 	now := time.Now()
 
@@ -29,6 +31,7 @@ func (f *Fetch) Refresh() bool {
 	return false
 }
 
+// Update method populates Fetch.data with new information
 func (f *Fetch) Update() {
 	json, err := getJSON()
 
