@@ -101,20 +101,20 @@ type CoinGeko struct {
 	Atl                          float64  `json:"atl"`
 	AtlChangePercentage          float64  `json:"atl_change_percentage"`
 	AtlDate                      string   `json:"atl_date"`
-	Roi                          *Roi     `json:"roi"`
+	Roi                          *roi     `json:"roi"`
 	LastUpdated                  string   `json:"last_updated"`
 }
 
-type Roi struct {
+type roi struct {
 	Times      float64  `json:"times"`
-	Currency   Currency `json:"currency"`
+	Currency   currency `json:"currency"`
 	Percentage float64  `json:"percentage"`
 }
 
-type Currency string
+type currency string
 
 const (
-	Btc Currency = "btc"
-	Eth Currency = "eth"
-	Usd Currency = "usd"
+	Btc currency = "btc"
+	Eth currency = "eth"
+	Usd currency = "usd"
 )
