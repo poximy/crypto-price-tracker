@@ -6,8 +6,10 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-var fetch = NewFetch()
-var tmpl = LoadTemplate()
+var (
+	fetch = NewFetch()
+	tmpl  = LoadTemplate()
+)
 
 func NewRoute() *chi.Mux {
 	r := &Route{}
