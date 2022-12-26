@@ -25,6 +25,9 @@ type Route struct {
 
 func (r *Route) Mount() {
 	r.Router.Get("/", index)
+
+	fileServer := http.FileServer(http.Dir("./public/"))
+	r.Router.Handle("/public/*", http.StripPrefix("/public", fileServer))
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -32,6 +35,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 		fetch.Update()
 	}
 
+	// TODO minify right here
+	// cache tmpl
 	err := tmpl.Execute(w, fetch.data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
