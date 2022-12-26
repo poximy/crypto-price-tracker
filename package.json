@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "Web app that shows crypto currency prices, built using Go and the Coin Gecko API",
   "scripts": {
-    "prettier": "prettier --plugin-search-dir . --write ."
+    "prettier": "prettier --plugin-search-dir . --write .",
+    "tailwind": "tailwindcss -i ./pages/styles.css -o ./public/styles.css --minify"
   },
   "repository": {
     "type": "git",
@@ -16,6 +17,8 @@
   },
   "homepage": "https://github.com/poximy/crypto-price-tracker#readme",
   "devDependencies": {
-    "prettier": "^2.8.1"
+    "prettier": "^2.8.1",
+    "prettier-plugin-tailwindcss": "^0.2.1",
+    "tailwindcss": "^3.2.4"
   }
 }

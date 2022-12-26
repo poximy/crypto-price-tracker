@@ -2,4 +2,5 @@
 .DS_Store
 
 # NodeJS
+/public
 /node_modules
