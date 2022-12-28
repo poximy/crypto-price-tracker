@@ -26,6 +26,7 @@ type Server struct {
 
 func (s *Server) MountMiddleware() {
 	s.Router.Use(middleware.Logger)
+	s.Router.Use(middleware.Compress(5, "text/*"))
 }
 
 func (s *Server) MountHandlers() {
