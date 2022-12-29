@@ -24,3 +24,7 @@
 *.test
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# NodeJS
+/public
+/node_modules
