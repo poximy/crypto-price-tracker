@@ -113,8 +113,11 @@ type roi struct {
 
 type currency string
 
-const (
-	Btc currency = "btc"
-	Eth currency = "eth"
-	Usd currency = "usd"
-)
+type CoinGeko struct {
+	Name                     string  `json:"name"`
+	Image                    string  `json:"image"`
+	Symbol                   string  `json:"symbol"`
+	CurrentPrice             float64 `json:"current_price,omitempty"`
+	PriceChange24H           float64 `json:"price_change_24h,omitempty"`
+	PriceChangePercentage24H float64 `json:"price_change_percentage_24h,omitempty"`
+}
