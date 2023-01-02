@@ -5,53 +5,82 @@ import (
 	"errors"
 	"math"
 	"net/http"
+	"os"
+	"sync"
+	"text/template"
 	"time"
+
+	"github.com/tdewolff/minify/v2"
+	"github.com/tdewolff/minify/v2/html"
 )
 
+const filePath = "./pages/index.html"
+
 type Fetch struct {
-	data *[]CoinGeko
-	time time.Time
+	data     []coinGeko
+	time     time.Time
+	template *template.Template
 }
 
-// NewFetch creates a Fetch instanace with a starting time & data
+// NewFetch creates a Fetch instanace
 func NewFetch() Fetch {
-	next := time.Now().Add(10 * time.Second)
-	json, _ := getJSON() // FIXME handle err
-	return Fetch{data: &json, time: next}
+	var err error
+	data := make([]coinGeko, 0)
+	tmpl := template.New("index")
+	time := time.Now().Add(10 * time.Second)
+
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	go func() {
+		html := loadHTMLFile()
+		tmpl, err = tmpl.Parse(html)
+		wg.Done()
+	}()
+
+	go func() {
+		data, err = getJSON()
+		wg.Done()
+	}()
+
+	wg.Wait()
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return Fetch{data: data, time: time, template: tmpl}
 }
 
 // Refresh method checks if a certain amount of time has passed
-func (f *Fetch) Refresh() bool {
+func (f *Fetch) Refresh() {
 	now := time.Now()
 
-	if f.time.Before(now) {
-		f.time = now.Add(10 * time.Second)
-		return true
+	if now.Before(f.time) {
+		return
 	}
-	return false
-}
 
-// Update method populates Fetch.data with new information
-func (f *Fetch) Update() {
 	json, err := getJSON()
-
-	if err == nil {
-		*f.data = json
+	if err != nil {
+		return
 	}
+
+	f.data = json
+	f.time = now.Add(10 * time.Second)
 }
 
-func getJSON() ([]CoinGeko, error) {
+func getJSON() ([]coinGeko, error) {
 	url := "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false"
 
 	res, err := http.Get(url)
 	if err != nil {
-		return make([]CoinGeko, 0), errors.New("unable to load page")
+		return make([]coinGeko, 0), errors.New("unable to load page")
 	}
 
-	var cg []CoinGeko
+	var cg []coinGeko
 	err = json.NewDecoder(res.Body).Decode(&cg)
 	if err != nil {
-		return make([]CoinGeko, 0), err
+		return make([]coinGeko, 0), err
 	}
 
 	parseJSON(&cg)
@@ -59,7 +88,7 @@ func getJSON() ([]CoinGeko, error) {
 	return cg, nil
 }
 
-func parseJSON(cg *[]CoinGeko) {
+func parseJSON(cg *[]coinGeko) {
 	json := *cg
 	for i := range json {
 		price := json[i].CurrentPrice
@@ -71,53 +100,40 @@ func parseJSON(cg *[]CoinGeko) {
 }
 
 // roundFloat rounds the val to the precision's decimal place
-func roundFloat(val float64, precision uint) float64 {
-	ratio := math.Pow(10, float64(precision))
+func roundFloat(val, precision float64) float64 {
+	ratio := math.Pow(10, precision)
 	return math.Round(val*ratio) / ratio
 }
 
-type CoinGeko struct {
-	ID                           string   `json:"id"`
-	Symbol                       string   `json:"symbol"`
-	Name                         string   `json:"name"`
-	Image                        string   `json:"image"`
-	CurrentPrice                 float64  `json:"current_price"`
-	MarketCap                    int64    `json:"market_cap"`
-	MarketCapRank                int64    `json:"market_cap_rank"`
-	FullyDilutedValuation        *int64   `json:"fully_diluted_valuation"`
-	TotalVolume                  float64  `json:"total_volume"`
-	High24H                      float64  `json:"high_24h"`
-	Low24H                       float64  `json:"low_24h"`
-	PriceChange24H               float64  `json:"price_change_24h"`
-	PriceChangePercentage24H     float64  `json:"price_change_percentage_24h"`
-	MarketCapChange24H           float64  `json:"market_cap_change_24h"`
-	MarketCapChangePercentage24H float64  `json:"market_cap_change_percentage_24h"`
-	CirculatingSupply            float64  `json:"circulating_supply"`
-	TotalSupply                  *float64 `json:"total_supply"`
-	MaxSupply                    *float64 `json:"max_supply"`
-	Ath                          float64  `json:"ath"`
-	AthChangePercentage          float64  `json:"ath_change_percentage"`
-	AthDate                      string   `json:"ath_date"`
-	Atl                          float64  `json:"atl"`
-	AtlChangePercentage          float64  `json:"atl_change_percentage"`
-	AtlDate                      string   `json:"atl_date"`
-	Roi                          *roi     `json:"roi"`
-	LastUpdated                  string   `json:"last_updated"`
+func loadHTMLFile() string {
+	b, err := os.ReadFile(filePath)
+	if err != nil {
+		panic("unable to load file: " + filePath)
+	}
+
+	b = minifyHTML(b)
+	return string(b)
 }
 
-type roi struct {
-	Times      float64  `json:"times"`
-	Currency   currency `json:"currency"`
-	Percentage float64  `json:"percentage"`
+func minifyHTML(b []byte) []byte {
+	const mediaType = "text/html"
+
+	m := minify.New()
+	m.AddFunc(mediaType, html.Minify)
+
+	b, err := m.Bytes(mediaType, b)
+	if err != nil {
+		panic("unable to minify: " + filePath)
+	}
+
+	return b
 }
 
-type currency string
-
-type CoinGeko struct {
+type coinGeko struct {
 	Name                     string  `json:"name"`
 	Image                    string  `json:"image"`
 	Symbol                   string  `json:"symbol"`
-	CurrentPrice             float64 `json:"current_price,omitempty"`
-	PriceChange24H           float64 `json:"price_change_24h,omitempty"`
-	PriceChangePercentage24H float64 `json:"price_change_percentage_24h,omitempty"`
+	CurrentPrice             float64 `json:"current_price"`
+	PriceChange24H           float64 `json:"price_change_24h"`
+	PriceChangePercentage24H float64 `json:"price_change_percentage_24h"`
 }

@@ -6,10 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-var (
-	fetch = NewFetch()
-	tmpl  = LoadTemplate()
-)
+var fetch = NewFetch()
 
 func NewRoute() *chi.Mux {
 	r := &Route{}
@@ -31,13 +28,10 @@ func (r *Route) Mount() {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	if fetch.Refresh() {
-		fetch.Update()
-	}
+	fetch.Refresh()
 
-	// TODO minify right here
-	// cache tmpl
-	err := tmpl.Execute(w, fetch.data)
+	// TODO cache tmpl & minify
+	err := fetch.template.Execute(w, fetch.data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
