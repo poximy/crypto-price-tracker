@@ -27,14 +27,14 @@ func NewFetch() Fetch {
 	var err error
 	data := make([]coinGeko, 0)
 	tmpl := template.New("index")
-	time := time.Now().Add(10 * time.Second)
+	t := time.Now().Add(10 * time.Second)
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
 	go func() {
-		html := loadHTMLFile()
-		tmpl, err = tmpl.Parse(html)
+		file := loadHTMLFile()
+		tmpl, err = tmpl.Parse(file)
 		wg.Done()
 	}()
 
@@ -49,7 +49,7 @@ func NewFetch() Fetch {
 		panic(err.Error())
 	}
 
-	return Fetch{data: data, time: time, template: tmpl}
+	return Fetch{data: data, time: t, template: tmpl}
 }
 
 // Refresh method checks if a certain amount of time has passed
@@ -60,12 +60,12 @@ func (f *Fetch) Refresh() {
 		return
 	}
 
-	json, err := getJSON()
+	data, err := getJSON()
 	if err != nil {
 		return
 	}
 
-	f.data = json
+	f.data = data
 	f.time = now.Add(10 * time.Second)
 }
 
@@ -89,13 +89,13 @@ func getJSON() ([]coinGeko, error) {
 }
 
 func parseJSON(cg *[]coinGeko) {
-	json := *cg
-	for i := range json {
-		price := json[i].CurrentPrice
-		change := json[i].PriceChange24H
+	jsonData := *cg
+	for i := range jsonData {
+		price := jsonData[i].CurrentPrice
+		change := jsonData[i].PriceChange24H
 
-		json[i].CurrentPrice = roundFloat(price, 4)
-		json[i].PriceChangePercentage24H = roundFloat(change, 2)
+		jsonData[i].CurrentPrice = roundFloat(price, 4)
+		jsonData[i].PriceChangePercentage24H = roundFloat(change, 2)
 	}
 }
 
