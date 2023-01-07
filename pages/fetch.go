@@ -22,7 +22,7 @@ type Fetch struct {
 	template *template.Template
 }
 
-// NewFetch creates a Fetch instanace
+// NewFetch creates a Fetch instance
 func NewFetch() Fetch {
 	var err error
 	data := make([]coinGeko, 0)
