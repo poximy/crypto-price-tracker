@@ -18,7 +18,6 @@ const filePath = "./pages/index.html"
 
 type Fetch struct {
 	data     []coinGeko
-	time     time.Time
 	template *template.Template
 }
 
@@ -27,7 +26,6 @@ func NewFetch() Fetch {
 	var err error
 	data := make([]coinGeko, 0)
 	tmpl := template.New("index")
-	t := time.Now().Add(30 * time.Second)
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
@@ -49,24 +47,18 @@ func NewFetch() Fetch {
 		panic(err.Error())
 	}
 
-	return Fetch{data: data, time: t, template: tmpl}
+	return Fetch{data: data, template: tmpl}
 }
 
-// Refresh method checks if a certain amount of time has passed
 func (f *Fetch) Refresh() {
-	now := time.Now()
+	for {
+		data, err := getJSON()
+		if err == nil {
+			f.data = data
+		}
 
-	if now.Before(f.time) {
-		return
+		time.Sleep(1 * time.Minute)
 	}
-
-	data, err := getJSON()
-	if err != nil {
-		return
-	}
-
-	f.data = data
-	f.time = now.Add(30 * time.Second)
 }
 
 func getJSON() ([]coinGeko, error) {

@@ -13,6 +13,9 @@ var fetch = NewFetch()
 func NewRoute() *chi.Mux {
 	r := &Route{}
 	r.Router = chi.NewRouter()
+
+	go fetch.Refresh()
+
 	r.Mount()
 
 	return r.Router
@@ -31,8 +34,6 @@ func (r *Route) Mount() {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	fetch.Refresh()
-
 	// TODO cache tmpl & minify
 	err := fetch.template.Execute(w, fetch.data)
 	if err != nil {
@@ -45,8 +46,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func wsHandler(ws *websocket.Conn) {
 	for {
-		time.Sleep(30 * time.Second)
-		fetch.Refresh()
+		time.Sleep(1 * time.Minute) // Newest data already available
 
 		err := websocket.JSON.Send(ws, fetch.data)
 		if err != nil {
