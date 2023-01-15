@@ -27,7 +27,7 @@ func NewFetch() Fetch {
 	var err error
 	data := make([]coinGeko, 0)
 	tmpl := template.New("index")
-	t := time.Now().Add(10 * time.Second)
+	t := time.Now().Add(30 * time.Second)
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
@@ -66,7 +66,7 @@ func (f *Fetch) Refresh() {
 	}
 
 	f.data = data
-	f.time = now.Add(10 * time.Second)
+	f.time = now.Add(30 * time.Second)
 }
 
 func getJSON() ([]coinGeko, error) {
