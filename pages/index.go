@@ -2,8 +2,10 @@ package pages
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"golang.org/x/net/websocket"
 )
 
 var fetch = NewFetch()
@@ -22,6 +24,7 @@ type Route struct {
 
 func (r *Route) Mount() {
 	r.Router.Get("/", index)
+	r.Router.Handle("/ws", websocket.Handler(wsHandler))
 
 	fileServer := http.FileServer(http.Dir("./public/"))
 	r.Router.Handle("/public/*", http.StripPrefix("/public", fileServer))
@@ -38,4 +41,16 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
+}
+
+func wsHandler(ws *websocket.Conn) {
+	for {
+		time.Sleep(30 * time.Second)
+		fetch.Refresh()
+
+		err := websocket.JSON.Send(ws, fetch.data)
+		if err != nil {
+			return
+		}
+	}
 }
