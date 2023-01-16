@@ -26,7 +26,7 @@ type Server struct {
 
 func (s *Server) MountMiddleware() {
 	s.Router.Use(middleware.Logger)
-	s.Router.Use(middleware.Compress(5, "text/*"))
+	s.Router.Use(middleware.Compress(5, "text/css", "application/javascript"))
 }
 
 func (s *Server) MountHandlers() {

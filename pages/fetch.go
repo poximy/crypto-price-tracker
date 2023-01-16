@@ -28,7 +28,7 @@ func NewFetch() Fetch {
 	tmpl := template.New("index")
 
 	wg := sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		file := loadHTMLFile()
@@ -38,6 +38,11 @@ func NewFetch() Fetch {
 
 	go func() {
 		data, err = getJSON()
+		wg.Done()
+	}()
+
+	go func () {
+		minifyJavaScript()
 		wg.Done()
 	}()
 
@@ -119,6 +124,28 @@ func minifyHTML(b []byte) []byte {
 	}
 
 	return b
+}
+
+func minifyJavaScript() {
+	const mediaType = "application/javascript"
+
+	m := minify.New()
+	m.AddFunc(mediaType, html.Minify)
+
+	b, err := os.ReadFile("./pages/script.js")
+	if err != nil {
+		panic("unable to find: /pages/script.js")
+	}
+
+	b, err = m.Bytes(mediaType, b)
+	if err != nil {
+		panic("unable to minify: /pages/script.js")
+	}
+
+	err = os.WriteFile("./public/script.js", b, 0777)
+	if err != nil {
+		panic("unable to create /public/script.js")
+	}
 }
 
 type coinGeko struct {
