@@ -23,6 +23,8 @@ type Fetch struct {
 
 // NewFetch creates a Fetch instance
 func NewFetch() Fetch {
+	_, Println := MakePrint(Green+Dim, Reset)
+	Println("> Fetch Instancing")
 	var err error
 	data := make([]coinGeko, 0)
 	tmpl := template.New("index")
@@ -34,16 +36,19 @@ func NewFetch() Fetch {
 		file := loadHTMLFile()
 		tmpl, err = tmpl.Parse(file)
 		wg.Done()
+		Println("Fetch > index.html parsed successfully")
 	}()
 
 	go func() {
 		data, err = getJSON()
 		wg.Done()
+		Println("Fetch > Initial data getted")
 	}()
 
-	go func () {
+	go func() {
 		minifyJavaScript()
 		wg.Done()
+		Println("Fetch > Javascript minified")
 	}()
 
 	wg.Wait()
@@ -51,6 +56,8 @@ func NewFetch() Fetch {
 	if err != nil {
 		panic(err.Error())
 	}
+
+	Println("> Fetch Instanced")
 
 	return Fetch{data: data, template: tmpl}
 }
