@@ -1,30 +1,29 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"os"
-  "fmt"
-  "bytes"
-  "log"
-  "time"
-  "io"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/poximy/crypto-price-tracker/pages"
 )
 
-
 func main() {
 	s := NewServer()
 	s.MountMiddleware()
 	s.MountHandlers()
 
-  fmt.Println(pages.Green + pages.Bold + "\n    >> CRYPTO <<", pages.Reset)
-  fmt.Print(pages.Dim, ">" + pages.Reset)
-  fmt.Print(pages.Cyan + pages.Bold, "    port  " + pages.Reset)
-  fmt.Print(pages.Cyan + pages.Italic, port())
-  fmt.Print("\n\n\n", pages.Reset)
+	fmt.Println(pages.Green+pages.Bold+"\n    >> CRYPTO <<", pages.Reset)
+	fmt.Print(pages.Dim, ">"+pages.Reset)
+	fmt.Print(pages.Cyan+pages.Bold, "    port  "+pages.Reset)
+	fmt.Print(pages.Cyan+pages.Italic, port())
+	fmt.Print("\n\n\n", pages.Reset)
 	err := http.ListenAndServe(port(), s.Router)
 	if err != nil {
 		panic(err)
@@ -37,7 +36,7 @@ type Server struct {
 }
 
 func (s *Server) MountMiddleware() {
-  s.Router.Use(middleware.RequestLogger(&CustomLogFormatter{Logger: log.New(os.Stdout, "", log.LstdFlags)}))
+	s.Router.Use(middleware.RequestLogger(&CustomLogFormatter{Logger: log.New(os.Stdout, "", log.LstdFlags)}))
 	s.Router.Use(middleware.Compress(5, "text/css", "application/javascript"))
 }
 
@@ -60,18 +59,17 @@ func port() string {
 }
 
 type CustomLogFormatter struct {
-  Logger middleware.LoggerInterface
+	Logger middleware.LoggerInterface
 }
 
 func (l *CustomLogFormatter) NewLogEntry(r *http.Request) middleware.LogEntry {
-  useColor := true
-  entry := &customLogEntry {
-    CustomLogFormatter: l,
-    request:            r,
-    buf:                &bytes.Buffer{},
-    useColor:           useColor,
-  }
-
+	useColor := true
+	entry := &customLogEntry{
+		CustomLogFormatter: l,
+		request:            r,
+		buf:                &bytes.Buffer{},
+		useColor:           useColor,
+	}
 
 	return entry
 }
@@ -84,7 +82,7 @@ type customLogEntry struct {
 }
 
 func (l *customLogEntry) Write(status, bytes int, header http.Header, elapsed time.Duration, extra interface{}) {
-	cW(l.buf, l.useColor, pages.Magenta + pages.Bold, "%s ", l.request.Method)
+	cW(l.buf, l.useColor, pages.Magenta+pages.Bold, "%s ", l.request.Method)
 
 	switch {
 	case status < 200:
@@ -100,14 +98,14 @@ func (l *customLogEntry) Write(status, bytes int, header http.Header, elapsed ti
 	}
 
 	cW(l.buf, l.useColor, pages.Cyan, " %s", l.request.RequestURI)
-	cW(l.buf, l.useColor, pages.Dim + pages.Yellow, "  %s ", ByteCountSI(bytes))
+	cW(l.buf, l.useColor, pages.Dim+pages.Yellow, "  %s ", ByteCountSI(bytes))
 
 	if elapsed < 500*time.Millisecond {
-		cW(l.buf, l.useColor, pages.Dim + pages.Green, "%s", elapsed)
+		cW(l.buf, l.useColor, pages.Dim+pages.Green, "%s", elapsed)
 	} else if elapsed < 5*time.Second {
-		cW(l.buf, l.useColor, pages.Dim + pages.Yellow, "%s", elapsed)
+		cW(l.buf, l.useColor, pages.Dim+pages.Yellow, "%s", elapsed)
 	} else {
-		cW(l.buf, l.useColor, pages.Dim + pages.Red, "%s", elapsed)
+		cW(l.buf, l.useColor, pages.Dim+pages.Red, "%s", elapsed)
 	}
 
 	l.Logger.Print(l.buf.String())
@@ -119,9 +117,9 @@ func (l *customLogEntry) Panic(v interface{}, stack []byte) {
 
 // Use colors and format on writer
 func cW(w io.Writer, useColor bool, color string, s string, args ...interface{}) {
-  w.Write([]byte(color))
-  fmt.Fprintf(w, s, args...)
-  w.Write([]byte(pages.Reset))
+	w.Write([]byte(color))
+	fmt.Fprintf(w, s, args...)
+	w.Write([]byte(pages.Reset))
 }
 
 // Format bytes size to B, kB, MB, TB, etc...
