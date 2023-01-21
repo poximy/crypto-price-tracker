@@ -1,4 +1,4 @@
-package pages
+package utils
 
 import "fmt"
 
@@ -18,14 +18,11 @@ var Italic = "\033[3m"
 
 var Clear = "\033[H\033[2J"
 
-func MakePrint(prefix, suffix string) (Print func(...any), Println func(...any)) {
+// TODO change return to Println func only
+func ColorPrintln(prefix string) func(...any) {
 	return func(a ...any) {
-			fmt.Print(prefix)
-			fmt.Print(a...)
-			fmt.Print(suffix)
-		}, func(a ...any) {
-			fmt.Print(prefix)
-			fmt.Print(a...)
-			fmt.Println(suffix)
-		}
+		fmt.Print(prefix)
+		fmt.Print(a...)
+		fmt.Println(Reset)
+	}
 }

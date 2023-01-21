@@ -1,6 +1,6 @@
 # macOS
 .DS_Store
 
-# NodeJS
-/public
+# frontend
+/dist
 /node_modules

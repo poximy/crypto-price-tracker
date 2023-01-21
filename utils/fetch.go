@@ -1,4 +1,4 @@
-package pages
+package utils
 
 import (
 	"encoding/json"
@@ -14,21 +14,30 @@ import (
 	"github.com/tdewolff/minify/v2/html"
 )
 
-const filePath = "./pages/index.html"
+const filePath = "./src/index.html"
+
+var greenDimPrintln = ColorPrintln(Green + Dim)
 
 type Fetch struct {
-	data     []coinGeko
-	template *template.Template
+	Data     []coinGeko
+	Template *template.Template
 }
 
 // NewFetch creates a Fetch instance
 func NewFetch() Fetch {
-	_, Println := MakePrint(Green+Dim, Reset)
-	Println("> Fetch Instancing")
-	var err error
+	// TODO validate the existance of /dist/styles.css
+	greenDimPrintln("> Fetch Instancing")
+
 	data := make([]coinGeko, 0)
 	tmpl := template.New("index")
+	initialize(tmpl, &data)
 
+	greenDimPrintln("> Fetch Instanced\n")
+
+	return Fetch{Data: data, Template: tmpl}
+}
+
+func initialize(tmpl *template.Template, data *[]coinGeko) (err error) {
 	wg := sync.WaitGroup{}
 	wg.Add(3)
 
@@ -36,37 +45,30 @@ func NewFetch() Fetch {
 		file := loadHTMLFile()
 		tmpl, err = tmpl.Parse(file)
 		wg.Done()
-		Println("Fetch > index.html parsed successfully")
+		greenDimPrintln("Fetch > index.html parsed successfully")
 	}()
 
 	go func() {
-		data, err = getJSON()
+		*data, err = getJSON()
 		wg.Done()
-		Println("Fetch > Initial data getted")
+		greenDimPrintln("Fetch > Initial data getted")
 	}()
 
 	go func() {
 		minifyJavaScript()
 		wg.Done()
-		Println("Fetch > Javascript minified")
+		greenDimPrintln("Fetch > Javascript minified")
 	}()
 
 	wg.Wait()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	Println("> Fetch Instanced")
-
-	return Fetch{data: data, template: tmpl}
+	return err
 }
 
 func (f *Fetch) Refresh() {
 	for {
 		data, err := getJSON()
 		if err == nil {
-			f.data = data
+			f.Data = data
 		}
 
 		time.Sleep(1 * time.Minute)
@@ -139,19 +141,19 @@ func minifyJavaScript() {
 	m := minify.New()
 	m.AddFunc(mediaType, html.Minify)
 
-	b, err := os.ReadFile("./pages/script.js")
+	b, err := os.ReadFile("./src/script.js")
 	if err != nil {
-		panic("unable to find: /pages/script.js")
+		panic("unable to find: /src/script.js")
 	}
 
 	b, err = m.Bytes(mediaType, b)
 	if err != nil {
-		panic("unable to minify: /pages/script.js")
+		panic("unable to minify: /src/script.js")
 	}
 
-	err = os.WriteFile("./public/script.js", b, 0777)
+	err = os.WriteFile("./dist/script.js", b, 0777)
 	if err != nil {
-		panic("unable to create /public/script.js")
+		panic("unable to create /dist/script.js")
 	}
 }
 
