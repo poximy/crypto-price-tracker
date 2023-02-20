@@ -4,7 +4,8 @@
   "description": "Web app that shows crypto currency prices, built using Go and the Coin Gecko API",
   "scripts": {
     "prettier": "prettier --plugin-search-dir . --write .",
-    "tailwind": "tailwindcss -i ./src/styles.css -o ./dist/styles.css --minify"
+    "tailwind": "tailwindcss -i ./src/styles.css -o ./dist/styles.css --minify",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",

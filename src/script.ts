@@ -4,7 +4,17 @@ socket.onerror = (err) => {
   alert('Error with the web socket conection! See the console');
   console.error(err);
 };
-function renderCard(data) {
+
+interface CoinGeko {
+	name: string,
+	image: string,
+	symbol: string,
+	current_price: number,
+	price_change_24h: number,
+	price_change_percentage_24h: number
+}
+
+function renderCard(data: CoinGeko) {
   return `
       <div
         class="flex h-48 flex-col items-center justify-center gap-2 border
@@ -28,11 +38,13 @@ function renderCard(data) {
       </div>
   `;
 }
+
 window.addEventListener('DOMContentLoaded', () => {
-  /** @type {HTMLDivElement} */
-  const container = document.getElementById('container');
+	// @ts-ignore
+  const container: HTMLDivElement = document.getElementById('container')
+
   socket.onmessage = (ev) => {
-    const data = JSON.parse(ev.data);
+    const data: CoinGeko[] = JSON.parse(ev.data);
     container.innerHTML = data.map(renderCard).join('\n');
   };
 });
