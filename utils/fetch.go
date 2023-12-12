@@ -141,7 +141,7 @@ func minifyJavaScript() {
 	m := minify.New()
 	m.AddFunc(mediaType, html.Minify)
 
-	b, err := os.ReadFile("./src/script.js")
+	b, err := os.ReadFile("./dist/script.js")
 	if err != nil {
 		panic("unable to find: /src/script.js")
 	}
